@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  sandbox:
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: my-sandbox
+    user: "${UID:-1000}:${GID:-1000}"
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./workspace:/workspace
+      - ~/.ssh:/home/sandboxer/.ssh:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - TERM=xterm-256color
+      - TZ=Europe/Moscow
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    networks:
+      - sandbox_net
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    command: ["bash"]
+
+networks:
+  sandbox_net:
+    driver: bridge
